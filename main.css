@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* 1. Define Tailwind v4 Theme Variables & Animations */
+@theme {
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
+/* 2. Define Dynamic Weather Themes applied to the body tag */
+@layer base {
+  :root {
+    /* Default / Cloudy Theme (Cyan) */
+    --theme-accent: #67e8f9;       
+    --theme-accent-light: #a5f3fc; 
+    --theme-btn-bg: #06b6d4;       
+    --theme-btn-hover: #22d3ee;    
+    --theme-overlay: rgba(0, 0, 0, 0.4);
+    
+    /* Card Gradients & Borders */
+    --theme-card-bg: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+    --theme-panel-bg: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    --theme-border: rgba(255, 255, 255, 0.25);
+    --theme-shadow: rgba(6, 182, 212, 0.15);
+  }
+  
+  body[data-theme="sunny"] {
+    /* Sunny Theme (Yellow/Gold) */
+    --theme-accent: #fcd34d;       
+    --theme-accent-light: #fef08a; 
+    --theme-btn-bg: #eab308;       
+    --theme-btn-hover: #facc15;    
+    --theme-overlay: rgba(0, 0, 0, 0.25);
+    
+    --theme-card-bg: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(234, 179, 8, 0.15) 100%);
+    --theme-panel-bg: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(234, 179, 8, 0.1) 100%);
+    --theme-border: rgba(250, 204, 21, 0.3);
+    --theme-shadow: rgba(234, 179, 8, 0.15);
+  }
+
+  body[data-theme="rainy"] {
+    /* Rainy Theme (Deep Blue) */
+    --theme-accent: #60a5fa;       
+    --theme-accent-light: #93c5fd; 
+    --theme-btn-bg: #3b82f6;       
+    --theme-btn-hover: #60a5fa;    
+    --theme-overlay: rgba(0, 0, 0, 0.55);
+    
+    --theme-card-bg: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(59, 130, 246, 0.2) 100%);
+    --theme-panel-bg: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(59, 130, 246, 0.15) 100%);
+    --theme-border: rgba(59, 130, 246, 0.3);
+    --theme-shadow: rgba(59, 130, 246, 0.2);
+  }
+
+  body[data-theme="snowy"] {
+    /* Snowy Theme (Icy Slate/White) */
+    --theme-accent: #e2e8f0;       
+    --theme-accent-light: #f8fafc; 
+    --theme-btn-bg: #94a3b8;       
+    --theme-btn-hover: #cbd5e1;    
+    --theme-overlay: rgba(0, 0, 0, 0.35);
+    
+    --theme-card-bg: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(148, 163, 184, 0.15) 100%);
+    --theme-panel-bg: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(148, 163, 184, 0.1) 100%);
+    --theme-border: rgba(255, 255, 255, 0.4);
+    --theme-shadow: rgba(255, 255, 255, 0.15);
+  }
+
+  body[data-theme="stormy"] {
+    /* Stormy Theme (Dark Purple) */
+    --theme-accent: #c084fc;       
+    --theme-accent-light: #d8b4fe; 
+    --theme-btn-bg: #9333ea;       
+    --theme-btn-hover: #a855f7;    
+    --theme-overlay: rgba(0, 0, 0, 0.65);
+    
+    --theme-card-bg: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(147, 51, 234, 0.25) 100%);
+    --theme-panel-bg: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(147, 51, 234, 0.15) 100%);
+    --theme-border: rgba(168, 85, 247, 0.3);
+    --theme-shadow: rgba(147, 51, 234, 0.3);
+  }
+}
+
+/* 3. Force Custom Utility Classes */
+@layer utilities {
+  /* Text and Button Colors */
+  .text-theme-accent { color: var(--theme-accent) !important; transition: color 0.5s ease; }
+  .text-theme-light { color: var(--theme-accent-light) !important; transition: color 0.5s ease; }
+  
+  .bg-theme-btn { 
+    background-color: var(--theme-btn-bg) !important; 
+    transition: background-color 0.5s ease; 
+  }
+  
+  .hover\:bg-theme-btn-hover:hover { 
+    background-color: var(--theme-btn-hover) !important; 
+  }
+  
+  .focus\:ring-theme:focus { 
+    --tw-ring-color: var(--theme-accent) !important; 
+    box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important; 
+  }
+  
+  .overlay-bg { 
+    background-color: var(--theme-overlay) !important; 
+    transition: background-color 1s ease; 
+  }
+
+  /* Dynamic Glassmorphism Backgrounds & Borders */
+  .glass-card {
+    background: var(--theme-card-bg) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--theme-border) !important;
+    box-shadow: 0 10px 40px var(--theme-shadow) !important;
+  }
+  
+  .glass-panel {
+    background: var(--theme-panel-bg) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--theme-border) !important;
+    box-shadow: 0 4px 20px var(--theme-shadow) !important;
+  }
+  
+  .alert-glass {
+    background: rgba(220, 38, 38, 0.25) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(239, 68, 68, 0.5) !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3) !important;
+  }
+
+  /* Scrollbars */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+
+  /* Map Buttons */
+  .active-map-btn {
+    background: rgba(255, 255, 255, 0.4) !important;
+    font-weight: bold;
+    box-shadow: 0 0 10px var(--theme-shadow) !important;
+  }
+}
+
+/* 4. Leaflet Fix */
+@layer components {
+  .leaflet-container {
+    background: rgba(0,0,0,0.2) !important;
+    font-family: inherit;
+  }
+}

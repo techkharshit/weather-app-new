@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  
+  <!-- Link to external main.css processed by Tailwind v4 -->
+  <link rel="stylesheet" href="./main.css">
+  
+  <script src="https://kit.fontawesome.com/d4a73fcf5c.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body id="app-body" class="w-screen min-h-screen bg-slate-950 flex flex-col items-center font-sans overflow-x-hidden text-white relative">
+
+  <!-- Background Video -->
+  <video id="bg-video" autoplay loop muted playsinline class="fixed inset-0 w-full h-full object-cover -z-20 transition-opacity duration-1000">
+    <source src="./assets/clouds.mp4" type="video/mp4">
+  </video>
+
+  <!-- Dynamic Readability Overlay -->
+  <div class="fixed inset-0 overlay-bg backdrop-blur-[2px] -z-10"></div>
+
+  <!-- Header -->
+  <h1 class="text-4xl md:text-5xl font-extrabold mt-12 drop-shadow-lg tracking-widest uppercase animate-fade-in text-center text-white">
+    Weather App
+  </h1>
+
+  <!-- Navigation Tabs -->
+  <div class="flex w-11/12 max-w-sm justify-between mt-10 text-lg font-semibold bg-white/10 rounded-full p-1.5 backdrop-blur-md border border-white/20 animate-fade-in shadow-lg z-10">
+    <div class="Your_weather w-1/2 text-center py-2 rounded-full cursor-pointer transition-all duration-300">Your Weather</div>
+    <div class="Search_weather w-1/2 text-center py-2 rounded-full cursor-pointer transition-all duration-300">Search Weather</div>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <div class="relative w-[95%] max-w-[1600px] flex flex-col items-center mt-12 pb-12 z-10">
+
+    <!-- UI-1: Location Access -->
+    <div class="UI-1 hidden flex-col items-center w-11/12 max-w-md glass-card p-10 rounded-3xl text-center animate-fade-in mx-auto">
+      <img src="https://cdn-icons-png.flaticon.com/128/535/535137.png" alt="location icon" class="w-24 h-24 mb-6 drop-shadow-2xl animate-bounce">
+      <div class="text-2xl font-bold mb-3 tracking-wide">Grant Location Access</div>
+      <div class="text-white/80 text-sm font-medium mb-8">Allow access to automatically fetch weather, alerts, marine, astronomy, and radar data for your current location.</div>
+      <button class="location_access bg-theme-btn hover:bg-theme-btn-hover text-slate-900 px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-[0_10px_20px_rgba(0,0,0,0.2)] tracking-wider">
+        GRANT ACCESS
+      </button>
+    </div>
+
+    <!-- UI-2: Loading Spinner -->
+    <div class="UI-2 hidden flex-col justify-center items-center w-full my-12 animate-fade-in z-0">
+      <div role="status">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-20 shrink-0 animate-spin fill-white/80 drop-shadow-xl" viewBox="0 0 512 512" aria-hidden="true"><path d="M248.093 177.6c-43.214 0-78.4 35.186-78.4 78.4 0 43.245 35.186 78.4 78.4 78.4 43.246 0 78.4-35.155 78.4-78.4 0-43.214-35.154-78.4-78.4-78.4zm0 125.44c-25.934 0-47.04-21.105-47.04-47.04s21.106-47.04 47.04-47.04 47.04 21.105 47.04 47.04-21.105 47.04-47.04 47.04z" /><path d="m310.75 191.869-15.68-172.48c-.72-8.091-7.494-14.269-15.617-14.269h-62.72c-8.122 0-14.896 6.178-15.617 14.269l-15.68 172.48c-.408 4.39 1.066 8.718 4.046 11.98a15.627 15.627 0 0 0 11.571 5.111h94.08c4.422 0 8.593-1.85 11.572-5.08a15.667 15.667 0 0 0 4.046-12.011zM218.208 177.6l12.858-141.12h34.057l12.826 141.12h-59.74zm12.701 142.625-47.04-81.473c-2.226-3.795-5.927-6.523-10.223-7.464-4.297-.91-8.812-.031-12.419 2.51l-141.559 99.85c-6.617 4.64-8.593 13.61-4.547 20.634l31.36 54.316a15.76 15.76 0 0 0 13.61 7.84c2.227 0 4.453-.44 6.586-1.443l157.207-72.692a15.876 15.876 0 0 0 8.374-9.502c1.348-4.171.846-8.75-1.349-12.576z" /><path d="M494.928 211.406c-1.6-8.498-9.722-14.018-18.283-12.544-8.499 1.6-14.112 9.784-12.513 18.283 2.321 12.513 3.481 25.558 3.481 38.855 0 38.322-10.223 76.173-29.572 109.415-4.328 7.495-1.788 17.091 5.707 21.45 2.478 1.443 5.175 2.101 7.872 2.101 5.394 0 10.662-2.79 13.579-7.808 22.077-38.04 33.774-81.317 33.774-125.158 0-15.21-1.348-30.2-4.045-44.594zm-13.924-47.855c-4.077-10.663-9.251-21.388-15.805-32.677-4.39-7.527-14.05-10.067-21.45-5.708-7.496 4.36-10.067 13.924-5.708 21.419 5.707 9.847 10.192 19.035 13.673 28.161 2.383 6.24 8.342 10.067 14.645 10.067 1.882 0 3.763-.345 5.613-1.004 8.091-3.104 12.137-12.167 9.032-20.258zM248.094 5.12c-59.428 0-116.848 21.293-161.693 59.929-6.585 5.645-7.307 15.555-1.662 22.109a15.658 15.658 0 0 0 11.886 5.456c3.637 0 7.275-1.254 10.223-3.794 39.2-33.744 89.345-52.34 141.245-52.34 8.656 0 15.68-7.025 15.68-15.68s-7.024-15.68-15.68-15.68z" /></svg>
+      </div>
+    </div>
+
+    <!-- UI-3: Current Location Weather Data -->
+    <div class="UI-3 hidden flex-col w-full gap-6 animate-fade-in">
+      
+      <div class="alerts_container hidden w-full alert-glass p-5 rounded-3xl animate-fade-in shadow-lg">
+        <div class="flex items-center gap-3 text-red-300 mb-3 border-b border-red-500/30 pb-2">
+          <i class="fa-solid fa-triangle-exclamation text-2xl animate-pulse"></i>
+          <h3 class="text-lg font-bold uppercase tracking-widest">Weather Alert</h3>
+        </div>
+        <div class="alerts_content text-sm text-white/90 font-medium space-y-3"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+        <div class="glass-card lg:col-span-2 p-8 sm:p-12 rounded-3xl flex flex-col sm:flex-row items-center justify-between relative shadow-lg overflow-hidden">
+          <div class="flex flex-col items-center sm:items-start text-center sm:text-left z-10">
+            <div class="flex flex-row items-center justify-center sm:justify-start gap-4">
+              <div class="city text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-white"></div>
+              <img src="" class="flag w-12 shadow-sm rounded-md object-cover">
+            </div>
+            <div class="weather text-xl sm:text-2xl font-medium text-white/80 uppercase tracking-widest mt-2"></div>
+            <div class="temperature text-7xl sm:text-8xl lg:text-9xl font-extrabold drop-shadow-xl mt-6 text-white"></div>
+          </div>
+          <img src="" class="weather_icon w-40 h-40 sm:w-56 sm:h-56 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.4)] hover:scale-110 transition-transform duration-500 z-10 mt-6 sm:mt-0">
+        </div>
+
+        <div class="grid grid-rows-3 gap-4 lg:col-span-1">
+          <div class="wind glass-panel flex flex-row items-center justify-between p-6 rounded-3xl hover:bg-white/20 transition-all shadow-md h-full">
+            <div class="flex items-center gap-4">
+              <i class="fa-solid fa-wind text-theme-accent text-3xl drop-shadow-md"></i>
+              <span class="text-sm uppercase font-semibold text-white/70 tracking-wider">Wind</span>
+            </div>
+            <div class="wind_text font-bold text-2xl text-white"></div>
+          </div>
+          <div class="Humidity glass-panel flex flex-row items-center justify-between p-6 rounded-3xl hover:bg-white/20 transition-all shadow-md h-full">
+            <div class="flex items-center gap-4">
+              <i class="fa-solid fa-droplet text-theme-accent text-3xl drop-shadow-md"></i>
+              <span class="text-sm uppercase font-semibold text-white/70 tracking-wider">Humidity</span>
+            </div>
+            <div class="humidity_text font-bold text-2xl text-white"></div>
+          </div>
+          <div class="Clouds glass-panel flex flex-row items-center justify-between p-6 rounded-3xl hover:bg-white/20 transition-all shadow-md h-full">
+            <div class="flex items-center gap-4">
+              <i class="fa-solid fa-cloud text-theme-accent text-3xl drop-shadow-md"></i>
+              <span class="text-sm uppercase font-semibold text-white/70 tracking-wider">Cloudiness</span>
+            </div>
+            <div class="clouds_text font-bold text-2xl text-white"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+        <div class="w-full glass-panel p-6 sm:p-8 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md overflow-hidden">
+          <h3 class="text-lg font-bold uppercase tracking-widest mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-clock text-theme-accent"></i> Next 24 Hours</h3>
+          <div class="hourly_forecast_row flex flex-row gap-3 w-full overflow-x-auto custom-scrollbar pb-3"></div>
+        </div>
+        <div class="w-full glass-panel p-6 sm:p-8 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md overflow-hidden">
+          <h3 class="text-lg font-bold uppercase tracking-widest mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-calendar-days text-theme-accent"></i> 7-Day Forecast</h3>
+          <div class="forecast_row flex flex-row gap-3 w-full overflow-x-auto custom-scrollbar pb-3"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full items-stretch">
+        <div class="w-full glass-panel p-6 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md">
+          <h3 class="text-lg font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-white"><i class="fa-solid fa-lungs text-theme-accent"></i> Air Quality</h3>
+          <div class="aqi_status text-sm sm:text-base font-extrabold mb-5 px-4 py-2 rounded-full shadow-lg border border-white/20 transition-all duration-300 text-center text-white"></div>
+          <div class="grid grid-cols-3 gap-2 w-full text-center mt-auto">
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">PM2.5</span><span class="aqi_pm25 font-bold text-sm text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">PM10</span><span class="aqi_pm10 font-bold text-sm text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">O3</span><span class="aqi_o3 font-bold text-sm text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">NO2</span><span class="aqi_no2 font-bold text-sm text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">SO2</span><span class="aqi_so2 font-bold text-sm text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">CO</span><span class="aqi_co font-bold text-sm text-white"></span></div>
+          </div>
+        </div>
+
+        <div class="w-full glass-panel p-6 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md">
+          <h3 class="text-lg font-bold uppercase tracking-widest mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-moon text-theme-accent"></i> Lunar & Astro</h3>
+          <div class="grid grid-cols-2 gap-2 w-full text-center">
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-sun text-yellow-400 mb-1"></i><span class="text-[10px] uppercase text-white/70">Sunrise</span><span class="astro_sunrise font-bold text-xs mt-1 text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-cloud-sun text-orange-400 mb-1"></i><span class="text-[10px] uppercase text-white/70">Sunset</span><span class="astro_sunset font-bold text-xs mt-1 text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-arrow-up text-slate-300 mb-1"></i><span class="text-[10px] uppercase text-white/70">Moonrise</span><span class="astro_moonrise font-bold text-xs mt-1 text-white"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-arrow-down text-slate-400 mb-1"></i><span class="text-[10px] uppercase text-white/70">Moonset</span><span class="astro_moonset font-bold text-xs mt-1 text-white"></span></div>
+          </div>
+          <div class="mt-4 w-full flex justify-between items-center bg-black/10 rounded-xl p-3 mt-auto">
+            <div class="flex flex-col text-left"><span class="text-[10px] uppercase text-white/70">Phase</span><span class="astro_moon_phase font-bold text-sm text-theme-light"></span></div>
+            <div class="flex flex-col text-right"><span class="text-[10px] uppercase text-white/70">Illum</span><span class="astro_illumination font-bold text-sm text-theme-light"></span></div>
+          </div>
+        </div>
+
+        <div class="marine_container hidden w-full glass-panel p-6 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md overflow-hidden">
+          <h3 class="text-lg font-bold uppercase tracking-widest mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-water text-theme-accent"></i> Marine</h3>
+          <div class="grid grid-cols-2 gap-2 w-full text-center mb-4">
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Wave</span><span class="marine_wave font-bold text-xs text-theme-light"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Swell Ht</span><span class="marine_swell_ht font-bold text-xs text-theme-light"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Period</span><span class="marine_swell_period font-bold text-xs text-theme-light"></span></div>
+            <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Dir</span><span class="marine_swell_dir font-bold text-xs text-theme-light"></span></div>
+          </div>
+          <div class="w-full flex flex-col mt-auto">
+            <span class="text-[11px] uppercase text-white/70 font-semibold mb-2 ml-1">Upcoming Tides</span>
+            <div class="marine_tides_row flex flex-row gap-2 w-full overflow-x-auto custom-scrollbar pb-1"></div>
+          </div>
+        </div>
+
+        <div class="w-full glass-panel p-6 rounded-3xl flex flex-col shadow-md h-full min-h-[300px]">
+          <h3 class="text-lg font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-white"><i class="fa-solid fa-earth-americas text-theme-accent"></i> Live Radar</h3>
+          <div class="flex flex-wrap gap-2 mb-4 ui3-map-controls">
+            <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all active-map-btn text-white" data-layer="precip">Precip</button>
+            <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all text-white" data-layer="tmp2m">Temp</button>
+            <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all text-white" data-layer="wind">Wind</button>
+            <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all text-white" data-layer="pressure">Press</button>
+          </div>
+          <div id="map-ui3" class="w-full flex-grow rounded-xl shadow-inner border border-white/20 relative z-0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI-4: Search Weather Tab -->
+    <div class="UI-4 hidden flex-col items-center w-full animate-fade-in z-20">
+      
+      <div class="flex w-11/12 max-w-2xl mx-auto gap-3 mb-8 relative z-[9999]">
+        <div class="relative flex-1">
+          <input type="text" placeholder="Search for a city..." autocomplete="off" class="city_name w-full bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-full px-6 py-3 focus:outline-none focus:ring-2 focus:ring-theme focus:bg-white/30 transition-all shadow-lg text-lg backdrop-blur-md">
+          <ul class="suggestions_list hidden absolute top-full left-0 w-full mt-2 bg-white/10 backdrop-blur-xl border border-white/30 rounded-2xl max-h-60 overflow-y-auto custom-scrollbar z-[9999] shadow-2xl text-white divide-y divide-white/20 animate-fade-in"></ul>
+        </div>
+        <button class="search_button bg-white/20 hover:bg-white/30 border border-white/30 text-white w-14 h-14 shrink-0 rounded-full flex items-center justify-center transition-all transform hover:scale-105 shadow-lg backdrop-blur-md text-xl cursor-pointer">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <div class="ui_4_info hidden flex-col w-full gap-6 animate-fade-in mt-4 z-10">
+        
+        <div class="alerts_container hidden w-full alert-glass p-5 rounded-3xl animate-fade-in shadow-lg">
+          <div class="flex items-center gap-3 text-red-300 mb-3 border-b border-red-500/30 pb-2">
+            <i class="fa-solid fa-triangle-exclamation text-2xl animate-pulse"></i>
+            <h3 class="text-lg font-bold uppercase tracking-widest text-white">Weather Alert</h3>
+          </div>
+          <div class="alerts_content text-sm text-white/90 font-medium space-y-3"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+          <div class="glass-card lg:col-span-2 p-8 sm:p-12 rounded-3xl flex flex-col sm:flex-row items-center justify-between relative shadow-lg overflow-hidden">
+            <div class="flex flex-col items-center sm:items-start text-center sm:text-left z-10">
+              <div class="flex flex-row items-center justify-center sm:justify-start gap-4">
+                <div class="city text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-white"></div>
+                <img src="" class="flag w-12 shadow-sm rounded-md object-cover">
+              </div>
+              <div class="weather text-xl sm:text-2xl font-medium text-white/80 uppercase tracking-widest mt-2"></div>
+              <div class="temperature text-7xl sm:text-8xl lg:text-9xl font-extrabold drop-shadow-xl mt-6 text-white"></div>
+            </div>
+            <img src="" class="weather_icon w-40 h-40 sm:w-56 sm:h-56 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.4)] hover:scale-110 transition-transform duration-500 z-10 mt-6 sm:mt-0">
+          </div>
+
+          <div class="grid grid-rows-3 gap-4 lg:col-span-1">
+            <div class="wind glass-panel flex flex-row items-center justify-between p-6 rounded-3xl hover:bg-white/20 transition-all shadow-md h-full">
+              <div class="flex items-center gap-4">
+                <i class="fa-solid fa-wind text-theme-accent text-3xl drop-shadow-md"></i>
+                <span class="text-sm uppercase font-semibold text-white/70 tracking-wider">Wind</span>
+              </div>
+              <div class="wind_text font-bold text-2xl text-white"></div>
+            </div>
+            <div class="Humidity glass-panel flex flex-row items-center justify-between p-6 rounded-3xl hover:bg-white/20 transition-all shadow-md h-full">
+              <div class="flex items-center gap-4">
+                <i class="fa-solid fa-droplet text-theme-accent text-3xl drop-shadow-md"></i>
+                <span class="text-sm uppercase font-semibold text-white/70 tracking-wider">Humidity</span>
+              </div>
+              <div class="humidity_text font-bold text-2xl text-white"></div>
+            </div>
+            <div class="Clouds glass-panel flex flex-row items-center justify-between p-6 rounded-3xl hover:bg-white/20 transition-all shadow-md h-full">
+              <div class="flex items-center gap-4">
+                <i class="fa-solid fa-cloud text-theme-accent text-3xl drop-shadow-md"></i>
+                <span class="text-sm uppercase font-semibold text-white/70 tracking-wider">Cloudiness</span>
+              </div>
+              <div class="clouds_text font-bold text-2xl text-white"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+          <div class="w-full glass-panel p-6 sm:p-8 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md overflow-hidden">
+            <h3 class="text-lg font-bold uppercase tracking-widest mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-clock text-theme-accent"></i> Next 24 Hours</h3>
+            <div class="hourly_forecast_row flex flex-row gap-3 w-full overflow-x-auto custom-scrollbar pb-3"></div>
+          </div>
+          <div class="w-full glass-panel p-6 sm:p-8 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md overflow-hidden">
+            <h3 class="text-lg font-bold uppercase tracking-widest mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-calendar-days text-theme-accent"></i> 7-Day Forecast</h3>
+            <div class="forecast_row flex flex-row gap-3 w-full overflow-x-auto custom-scrollbar pb-3"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full items-stretch">
+          <div class="w-full glass-panel p-6 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md">
+            <h3 class="text-lg font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-white"><i class="fa-solid fa-lungs text-theme-accent"></i> Air Quality</h3>
+            <div class="aqi_status text-sm sm:text-base font-extrabold mb-5 px-4 py-2 rounded-full shadow-lg border border-white/20 transition-all duration-300 text-center text-white"></div>
+            <div class="grid grid-cols-3 gap-2 w-full text-center mt-auto">
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">PM2.5</span><span class="aqi_pm25 font-bold text-sm text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">PM10</span><span class="aqi_pm10 font-bold text-sm text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">O3</span><span class="aqi_o3 font-bold text-sm text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">NO2</span><span class="aqi_no2 font-bold text-sm text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">SO2</span><span class="aqi_so2 font-bold text-sm text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70">CO</span><span class="aqi_co font-bold text-sm text-white"></span></div>
+            </div>
+          </div>
+
+          <div class="w-full glass-panel p-6 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md">
+            <h3 class="text-lg font-bold uppercase tracking-widest mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-moon text-theme-accent"></i> Lunar & Astro</h3>
+            <div class="grid grid-cols-2 gap-2 w-full text-center">
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-sun text-yellow-400 mb-1"></i><span class="text-[10px] uppercase text-white/70">Sunrise</span><span class="astro_sunrise font-bold text-xs mt-1 text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-cloud-sun text-orange-400 mb-1"></i><span class="text-[10px] uppercase text-white/70">Sunset</span><span class="astro_sunset font-bold text-xs mt-1 text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-arrow-up text-slate-300 mb-1"></i><span class="text-[10px] uppercase text-white/70">Moonrise</span><span class="astro_moonrise font-bold text-xs mt-1 text-white"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><i class="fa-solid fa-arrow-down text-slate-400 mb-1"></i><span class="text-[10px] uppercase text-white/70">Moonset</span><span class="astro_moonset font-bold text-xs mt-1 text-white"></span></div>
+            </div>
+            <div class="mt-4 w-full flex justify-between items-center bg-black/10 rounded-xl p-3 mt-auto">
+              <div class="flex flex-col text-left"><span class="text-[10px] uppercase text-white/70">Phase</span><span class="astro_moon_phase font-bold text-sm text-theme-light"></span></div>
+              <div class="flex flex-col text-right"><span class="text-[10px] uppercase text-white/70">Illum</span><span class="astro_illumination font-bold text-sm text-theme-light"></span></div>
+            </div>
+          </div>
+
+          <div class="marine_container hidden w-full glass-panel p-6 rounded-3xl flex flex-col hover:bg-white/20 transition-all shadow-md overflow-hidden">
+            <h3 class="text-lg font-bold uppercase tracking-widest mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-water text-theme-accent"></i> Marine</h3>
+            <div class="grid grid-cols-2 gap-2 w-full text-center mb-4">
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Wave</span><span class="marine_wave font-bold text-xs text-theme-light"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Swell Ht</span><span class="marine_swell_ht font-bold text-xs text-theme-light"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Period</span><span class="marine_swell_period font-bold text-xs text-theme-light"></span></div>
+              <div class="flex flex-col bg-black/10 rounded-xl py-2"><span class="text-[10px] uppercase text-white/70 mb-1">Dir</span><span class="marine_swell_dir font-bold text-xs text-theme-light"></span></div>
+            </div>
+            <div class="w-full flex flex-col mt-auto">
+              <span class="text-[11px] uppercase text-white/70 font-semibold mb-2 ml-1">Upcoming Tides</span>
+              <div class="marine_tides_row flex flex-row gap-2 w-full overflow-x-auto custom-scrollbar pb-1"></div>
+            </div>
+          </div>
+
+          <div class="w-full glass-panel p-6 rounded-3xl flex flex-col shadow-md h-full min-h-[300px]">
+            <h3 class="text-lg font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-white"><i class="fa-solid fa-earth-americas text-theme-accent"></i> Live Radar</h3>
+            <div class="flex flex-wrap gap-2 mb-4 ui4-map-controls">
+              <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all active-map-btn text-white" data-layer="precip">Precip</button>
+              <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all text-white" data-layer="tmp2m">Temp</button>
+              <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all text-white" data-layer="wind">Wind</button>
+              <button class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wide hover:bg-white/30 transition-all text-white" data-layer="pressure">Press</button>
+            </div>
+            <div id="map-ui4" class="w-full flex-grow rounded-xl shadow-inner border border-white/20 relative z-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Requires zero changes to your most recent index.js setup -->
+  <script type="module" src="./index.js"></script>
+</body>
+</html>
