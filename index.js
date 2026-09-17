@@ -258,23 +258,23 @@ function applyThemeAndUpdateVideo(ans) {
     const condition = ans.current.condition.text.toLowerCase();
     const isDay = ans.current.is_day; // 1 for day, 0 for night
     
-    let targetVideo = "./assets/clouds.mp4"; 
+    let targetVideo = "/public/assets/clouds.mp4"; 
     let themeName = "cloudy"; // Default
 
     if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('shower') || condition.includes('pellets')) {
-        targetVideo = "./assets/rain.mp4";
+        targetVideo = "/public/assets/rain.mp4";
         themeName = "rainy";
     } else if (condition.includes('snow') || condition.includes('sleet') || condition.includes('blizzard') || condition.includes('ice')) {
-        targetVideo = "./assets/snow.mp4";
+        targetVideo = "/public/assets/snow.mp4";
         themeName = "snowy";
     } else if (condition.includes('thunder') || condition.includes('storm')) {
-        targetVideo = "./assets/thunder.mp4";
+        targetVideo = "/public/assets/thunder.mp4";
         themeName = "stormy";
     } else if (condition.includes('sunny') || condition.includes('clear')) {
-        targetVideo = isDay ? "./assets/sunny.mp4" : "./assets/clouds.mp4";
+        targetVideo = isDay ? "/public/assets/sunny.mp4" : "/public/assets/clouds.mp4";
         themeName = isDay ? "sunny" : "cloudy"; 
     } else {
-        targetVideo = "./assets/clouds.mp4"; 
+        targetVideo = "/public/assets/clouds.mp4"; 
         themeName = "cloudy"; 
     }
 
